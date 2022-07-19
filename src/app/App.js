@@ -2,6 +2,7 @@ import pokemon from 'pokemon';
 import { useEffect, useState } from 'react';
 
 import Search from '../components/Search';
+import PokemonTable from '../components/PokemonTable';
 import './App.css';
 
 function App() {
@@ -17,11 +18,12 @@ function App() {
         pokemonTeamData={pokemonTeamData}
         setPokemonTeamData={setPokemonTeamData}
       />
-      <div  style={{display: 'flex', justifyContent: 'center'}}>
+      <PokemonTable pokemonTeamData={pokemonTeamData}/>
+      {/* <div  style={{display: 'flex', justifyContent: 'center'}}>
         {pokemonTeamData.map((pokemon, i) => {
           return <img src={pokemon.sprites.front_default} key={i}/>;
         })}
-      </div>
+      </div> */}
     </div>
   );
 }
