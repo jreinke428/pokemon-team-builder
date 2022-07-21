@@ -19,11 +19,6 @@ function App() {
         setPokemonTeamData={setPokemonTeamData}
       />
       <PokemonTable pokemonTeamData={pokemonTeamData}/>
-      {/* <div  style={{display: 'flex', justifyContent: 'center'}}>
-        {pokemonTeamData.map((pokemon, i) => {
-          return <img src={pokemon.sprites.front_default} key={i}/>;
-        })}
-      </div> */}
     </div>
   );
 }
