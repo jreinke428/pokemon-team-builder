@@ -22,6 +22,7 @@ export default function Search(props){
                 if(p.includes("♂")) p = "nidoran-m";
                 if(p === "Mr. Mime") p = "mr-mime";
                 if(p === "Mr. Rime") p = "mr-rime";
+                if(p === "Mime Jr.") p = "mime-jr";
                 fetch("https://pokeapi.co/api/v2/pokemon/" + p.toLowerCase())
                 .then((res) => {
                     return res.json();
