@@ -9,10 +9,9 @@ export default function PokemonTable(props){
 
     const tableCellRefs = useRef(Array.from(Array(18), () => new Array(7)));
     const [tableCells, setTableCells] = useState(Array.from(Array(18), () => Array.from(new Array(7), () => '')));
-
+    const [getTeamTotals, setGetTeamTotals] = useState(false);
 
     const clearTableCells = () => {
-        setTableCells(Array.from(Array(18), () => Array.from(new Array(7), () => '')));
         for(let i=0;i<18;i++){
             for(let j=0;j<7;j++){
                 tableCellRefs.current[i][j].style = tableCellDefaultSyle;
@@ -20,48 +19,61 @@ export default function PokemonTable(props){
         }
     }
 
-    const updateTableCells = (updates) => {
-        let newTableCells = [];
-        tableCells.forEach(row => {
-            let newRow = []
-            row.forEach(col => {
-                newRow.push(col);
-            });
-            newTableCells.push(newRow);
-        });
-
-        updates.forEach((u) => {
-            newTableCells[u.row][u.col] = u.ele;
-        });
-
-        setTableCells(newTableCells);
-    }
-
     useEffect(() => {
         clearTableCells();
-        let tableCellUpdates = [];
+        let newTableCells = Array.from(Array(18), () => Array.from(new Array(7), () => ''));
+        if(props.pokemonTeamData.length === 0) setTableCells(newTableCells);
 
         props.pokemonTeamData.forEach((p, pIndex) => {
             p.types.forEach((t) => {
                 fetch('https://pokeapi.co/api/v2/type/'+t.type.name)
                 .then(res => res.json())
                 .then(type1 => {
-                    return new Promise((resolve, reject) => {
-                        pokemonTypes.forEach((type2, tIndex) => {
-                            if(type1.damage_relations.no_damage_from.filter((ty) => ty.name === type2.name.toLowerCase()).length > 0){
-                                tableCellUpdates.push({row: tIndex, col: pIndex, ele: 'X'});
-                                tableCellRefs.current[tIndex][pIndex].style.backgroundColor = "rgb(170,170,170)";
+                    pokemonTypes.forEach((type2, tIndex) => {
+                        if(type1.damage_relations.no_damage_from.filter((ty) => ty.name === type2.name.toLowerCase()).length > 0){
+                            //setTableCells(old => old.map((row, i) => i === tIndex ? row.map((col, j) => j === pIndex ? 'X' : col) : row));
+                            newTableCells[tIndex][pIndex] = 'X';
+                            tableCellRefs.current[tIndex][pIndex].style.backgroundColor = "rgb(170,170,170)";
+                        } else if(type1.damage_relations.double_damage_from.filter((ty) => ty.name === type2.name.toLowerCase()).length > 0){
+                            if(newTableCells[tIndex][pIndex] === ''){
+                                newTableCells[tIndex][pIndex] = '2';
+                                tableCellRefs.current[tIndex][pIndex].style.backgroundColor = "rgba(170,0,0,0.5)";
+                            } else if(newTableCells[tIndex][pIndex] === '2'){
+                                newTableCells[tIndex][pIndex] = '4';
+                                tableCellRefs.current[tIndex][pIndex].style.backgroundColor = "rgba(170,0,0,0.8)";
+                            } else if(newTableCells[tIndex][pIndex] === '½'){
+                                newTableCells[tIndex][pIndex] = '';
+                                tableCellRefs.current[tIndex][pIndex].style.backgroundColor = "initial";
                             }
-                        });
-                        resolve();
+                        } else if(type1.damage_relations.half_damage_from.filter((ty) => ty.name === type2.name.toLowerCase()).length > 0){
+                            if(newTableCells[tIndex][pIndex] === ''){
+                                newTableCells[tIndex][pIndex] = '½';
+                                tableCellRefs.current[tIndex][pIndex].style.backgroundColor = "rgba(0,170,0,0.5)";
+                            } else if(newTableCells[tIndex][pIndex] === '½'){
+                                newTableCells[tIndex][pIndex] = '¼';
+                                tableCellRefs.current[tIndex][pIndex].style.backgroundColor = "rgba(0,170,0,0.8)";
+                            } else if(newTableCells[tIndex][pIndex] === '2'){
+                                newTableCells[tIndex][pIndex] = '';
+                                tableCellRefs.current[tIndex][pIndex].style.backgroundColor = "initial";
+                            }
+                        }
+                        
                     });
-                })
-                .then(() => {
-                    updateTableCells(tableCellUpdates);
-                })
-            })
+                    if(pIndex === props.pokemonTeamData.length-1) {
+                        setTableCells(newTableCells);
+                        setGetTeamTotals(true);
+                    }
+                });
+            });
         });
     }, [props.pokemonTeamData]);
+
+    useEffect(() => {
+        if(getTeamTotals){
+            console.log('getTeamTotals');
+            setGetTeamTotals(false);
+        }
+    }, [getTeamTotals]);
 
     return(
         <div style={{display: 'flex', justifyContent: 'center'}}> 

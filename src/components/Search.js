@@ -16,8 +16,9 @@ export default function Search(props){
 
      useEffect(() => {
         if(fetchPokemonTeamData){
-            props.setPokemonTeamData([]);
-            for(var p of props.inputPokemonTeam){
+            let newTeamData = [];
+            if(props.inputPokemonTeam.length === 0) props.setPokemonTeamData(newTeamData);
+            props.inputPokemonTeam.forEach((p, i) => {
                 if(p.includes("♀")) p = "nidoran-f";
                 if(p.includes("♂")) p = "nidoran-m";
                 if(p === "Mr. Mime") p = "mr-mime";
@@ -28,9 +29,10 @@ export default function Search(props){
                     return res.json();
                 })
                 .then((resJson) => {
-                    props.setPokemonTeamData(old => [...old, resJson]);
+                    newTeamData.push(resJson);
+                    if(i === props.inputPokemonTeam.length-1) props.setPokemonTeamData(newTeamData);
                 });
-            }
+            });
             setFetchPokemonTeamData(false);
         }
      }, [fetchPokemonTeamData]);
